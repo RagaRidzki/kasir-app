@@ -10,8 +10,11 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {
-        return view('pages.product.index');
+    public function index()
+    {
+        $products = Product::all();
+
+        return view('pages.product.index', compact('products'));
     }
 
     /**
@@ -27,7 +30,20 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+            'stock' => 'required',
+            'image' => 'required|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('product_images', 'public');
+        }
+
+        Product::create($validated);
+
+        return redirect('/product')->with('success', 'Data produk berhasil ditambahkan');
     }
 
     /**
@@ -41,24 +57,54 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product)
+    public function edit(Product $product, $id)
     {
-        //
+        $products = Product::findOrFail($id);
+
+        return view('pages.product.edit', compact('products'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product, $id)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+            'stock' => 'nullable',
+            'image' => 'nullable|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $products = Product::findOrFail($id);
+
+        if ($request->hasFile('image')) {
+            if ($products->image) {
+                \Storage::disk('public')->delete($products->image);
+            }
+
+            $validated['image'] = $request->file('image')->store('product_images', 'public');
+        } else {
+            $validated['image'] = $products->image;
+        }
+
+        $products->update($validated);
+
+        return redirect('/product')->with('success', 'Data produk berhasil diupdate');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Product $product, $id)
     {
-        //
+        $products = Product::findOrFail($id);
+
+        if($products) {
+            $products->delete();
+            return redirect('/product')->with('success', 'Data product berhasil dihapus');
+        } else {
+            return redirect('/product')->with('error', 'Data product tidak ditemukan');
+        }
     }
 }

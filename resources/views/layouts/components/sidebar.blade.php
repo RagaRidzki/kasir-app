@@ -15,21 +15,21 @@
         <li class="mb-1 group {{ Request::is(patterns: 'product') ? 'active' : '' }}">
             <a href="/product"
                 class="flex items-center py-2 px-4 text-textColor hover:bg-hoverBg hover:text-hoverText rounded-md group-[.active]:bg-hoverBg group-[.active]:text-hoverText">
-                <i class="ri-bar-chart-box-line mr-3 text-lg"></i>
+                <i class="ri-store-2-line mr-3 text-lg"></i>
                 <span class="text-md font-semibold">Produk</span>
             </a>
         </li>
         <li class="mb-1 group {{ Request::is(patterns: 'sale') ? 'active' : '' }}">
             <a href="/sale"
                 class="flex items-center py-2 px-4 text-textColor hover:bg-hoverBg hover:text-hoverText rounded-md group-[.active]:bg-hoverBg group-[.active]:text-hoverText">
-                <i class="ri-bar-chart-box-line mr-3 text-lg"></i>
-                <span class="text-md font-semibold">Pembelian</span>
+                <i class="ri-shopping-bag-line mr-3 text-lg"></i>
+                <span class="text-md font-semibold">Penjualan</span>
             </a>
         </li>
         <li class="mb-1 group {{ Request::is(patterns: 'user') ? 'active' : '' }}">
             <a href="/user"
                 class="flex items-center py-2 px-4 text-textColor hover:bg-hoverBg hover:text-hoverText rounded-md group-[.active]:bg-hoverBg group-[.active]:text-hoverText">
-                <i class="ri-bar-chart-box-line mr-3 text-lg"></i>
+                <i class="ri-user-line mr-3 text-lg"></i>
                 <span class="text-md font-semibold">User</span>
             </a>
         </li>

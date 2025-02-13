@@ -3,7 +3,7 @@
 @section('content')
 <div class="p-6">
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-textColor">Product</h1>
+        <h1 class="text-2xl font-semibold text-textColor">Data Product</h1>
         <ul class="flex items-center text-sm">
             <li class="mr-2">
                 <a href="" class="text-gray-400 hover:text-gray-600 font-medium">Home</a>

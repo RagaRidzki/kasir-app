@@ -23,10 +23,10 @@
         </script>
     @endif
 
-    @include('layouts.components.sidebar')
+    @include('components.sidebar')
 
     <main class="w-full md:w-[calc(100%-256px)] md:ml-64 bg-gray-50 min-h-screen transition-all">
-        @include('layouts.components.navbar')
+        @include('components.navbar')
 
         @yield('content')
     </main>

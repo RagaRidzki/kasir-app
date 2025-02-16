@@ -29,12 +29,18 @@
                             class="text-red-500">*</span></label>
                     <input type="text" id="name" name="name"
                         class="block w-full border border-gray-300 focus:outline-none focus:border-gray-700 py-2 px-4 ">
+                    @error('name')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="w-full mb-4">
                     <label for="email" class="block text-gray-600 font-semibold mb-2">Email <span
                             class="text-red-500">*</span></label>
                     <input type="text" id="email" name="email"
                         class="block w-full border border-gray-300 focus:outline-none focus:border-gray-600 py-2 px-4">
+                    @error('email')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="w-full mb-4">
                     <label for="role" class="block text-gray-600 font-semibold mb-2">Role <span
@@ -46,18 +52,24 @@
                         <option value="Admin">Admin</option>
                         <option value="Employee">Employee</option>
                     </select>
+                    @error('role')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="w-full mb-4">
                     <label for="password" class="block text-gray-600 font-semibold mb-2">Password <span
                             class="text-red-500">*</span></label>
                     <input type="password" id="password" name="password"
                         class="block w-full border border-gray-300 focus:outline-none focus:border-gray-600 py-2 px-4">
+                    @error('password')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
             <div class="flex justify-end gap-x-2">
                 <button type="submit" class="py-2 px-4 bg-blue-500 hover:bg-blue-700 text-white rounded-md"><i
                         class="ri-add-line"></i> Tambah User</button>
-                <a href="/product" class="py-2 px-4 bg-gray-500 hover:bg-gray-700 text-white rounded-md">Kembali</a>
+                <a href="/user" class="py-2 px-4 bg-gray-500 hover:bg-gray-700 text-white rounded-md">Kembali</a>
             </div>
         </form>
     </div>

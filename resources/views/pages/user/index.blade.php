@@ -34,21 +34,22 @@
                     @foreach ($users as $user)
                     <tr>
                         <td class="py-2 px-4 border-b border-b-gray-200">{{ $loop->iteration }}</td>
-                        <td class="py-2 px-4 border-b border-b-gray-200">{{ $user->name }}</td>
                         <td class="py-2 px-4 border-b border-b-gray-200">{{ $user->email }}</td>
+                        <td class="py-2 px-4 border-b border-b-gray-200">{{ $user->name }}</td>
                         <td class="py-2 px-4 border-b border-b-gray-200">{{ $user->role }}</td>
                         <td class="py-2 px-4 border-b border-b-gray-200">
                             <ul class="flex items-center gap-x-2">
                                 <li>
-                                    <a {{-- href="/user/edit/{{ $users->id }}" --}}
+                                    <a href="/user/edit/{{ $user->id }}"
                                         class="py-2 px-4 bg-yellow-500 hover:bg-yellow-700 text-white rounded-md">Edit</a>
                                 </li>
                                 <li>
-                                    <form {{-- action="/user/{{ $users->id }}" --}} method="POST">
+                                    <form action="/user/{{ $user->id }}" method="POST" id="delete-form-{{ $user->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            class="py-2 px-4 bg-red-500 hover:bg-red-700 text-white rounded-md">Hapus</button>
+                                        <button type="button"
+                                            class="py-2 px-4 bg-red-500 hover:bg-red-700 text-white rounded-md"
+                                            onclick="confirmDelete({{ $user->id }})">Hapus</button>
                                     </form>
                                 </li>
                             </ul>
@@ -60,4 +61,32 @@
         </div>
     </div>
 </div>
+<script>
+    function confirmDelete(userID) {
+    Swal.fire({
+        title: 'Apakah kamu yakin?',
+        text: 'Data user ini akan dihapus secara permanen!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, hapus data ini',
+        cancelButtonText: 'Batal, data tetap disimpan',
+        reverseButtons: false, // Pastikan tombol merah tetap di kiri
+        customClass: {
+            confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded mr-2 order-1',
+            cancelButton: 'bg-gray-300 hover:bg-gray-400 text-black font-semibold px-4 py-2 rounded order-2'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete-form-' + userID).submit();
+        } else {
+            Swal.fire({
+                title: 'Dibatalkan',
+                text: 'Data user aman tersimpan.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
+</script>
 @endsection

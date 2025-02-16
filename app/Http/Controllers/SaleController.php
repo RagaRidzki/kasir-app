@@ -12,7 +12,7 @@ class SaleController extends Controller
      */
     public function index()
     {
-        return view('pages.admin.sale.index');
+        return view('pages.sale.index');
     }
 
     /**

@@ -2,84 +2,156 @@
 
 @section('content')
 <div class="p-6">
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-textColor">Data Product</h1>
-        <ul class="flex items-center text-sm">
-            <li class="mr-2">
-                <a href="" class="text-gray-400 hover:text-gray-600 font-medium">Home</a>
-            </li>
-            <li class="mr-2 text-gray-600 font-medium">/</li>
-            <li class="mr-2 ">
-                <a href="" class="text-gray-600 font-medium">Product</a>
-            </li>
-        </ul>
-    </div>
+    <x-breadcrumb title="Data Produk" :paths="[
+        ['name' => 'Home', 'url' => route('dashboard')],
+        ['name' => 'Data Produk', 'url' => '']
+    ]" />
 
-    <div class="bg-white border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-        <div class="flex justify-end mb-6">
-            <a href="/product/create" class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Tambah
-                Produk</a>
+    @if (auth()->user()->role === 'Admin')
+    <div class="w-full flex justify-between items-center mb-6">
+        <div class="relative w-96">
+            <input type="text" placeholder="Cari produk..." 
+                class="w-full border border-gray-300 rounded-md py-2 px-4 pl-10 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                <i class="ri-search-line absolute left-3 top-2.5 w-5 h-5 text-gray-400"></i>
         </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-gray-600 text-sm">Showing</span>
+                <select
+                    class="border border-gray-300 bg-white text-gray-700 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+
+            <!-- Filter Button -->
+            <button
+                class="flex items-center space-x-1 border border-gray-300 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 text-sm">
+                <i class="ri-filter-line"></i>
+                <span>Filter</span>
+            </button>
+
+            <!-- Tombol Tambah Produk -->
+            <x-link-button href="/product/create" color="blue" shadow="blue">
+                <i class="ri-add-line"></i> Tambah Produk Baru
+            </x-link-button>
+        </div>
+    </div>
+    @endif
+
+    <div class="bg-white border border-gray-200 shadow-sm p-6 rounded-lg">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[540px]">
+            <table class="w-full min-w-[540px] border-collapse">
                 <thead>
-                    <tr class="bg-gray-50 text-left rounded-md">
-                        <th class="text-md font-bold py-2 px-4">
-                            No</th>
-                        <th class="text-md font-bold py-2 px-4 ">
-                            Gambar</th>
-                        <th class="text-md font-bold py-2 px-4 ">
-                            Nama Produk</th>
-                        <th class="text-md font-bold py-2 px-4 ">
-                            Harga</th>
-                        <th class="text-md font-bold py-2 px-4 ">
-                            Stok</th>
-                        <th class="text-md font-bold py-2 px-4 ">
-                            Action</th>
+                    <tr class="bg-gray-50 text-left">
+                        <th class="text-md font-semibold py-3 px-5 border-b">No</th>
+                        <th class="text-md font-semibold py-3 px-5 border-b">Gambar</th>
+                        <th class="text-md font-semibold py-3 px-5 border-b">Nama Produk</th>
+                        <th class="text-md font-semibold py-3 px-5 border-b">Harga</th>
+                        <th class="text-md font-semibold py-3 px-5 border-b">Stok</th>
+                        @if (auth()->user()->role === 'Admin')
+                        <th class="text-md font-semibold py-3 px-5 border-b">Action</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($products as $product)
-                    <tr>
-                        <td class="py-2 px-4 border-b border-b-gray-200">{{ $loop->iteration }}</td>
-                        <td class="py-2 px-4 border-b border-b-gray-200">
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="py-3 px-5 border-b">{{ $loop->iteration }}</td>
+                        <td class="py-3 px-5 border-b">
                             <img src="{{ asset('storage/' . $product->image) }}" alt="gambar_product"
-                                class="w-20 h-20 rounded-md">
+                                class="w-16 h-16 rounded-lg border border-gray-200 shadow-sm">
                         </td>
-                        <td class="py-2 px-4 border-b border-b-gray-200">{{ $product->name }}</td>
-                        <td class="py-2 px-4 border-b border-b-gray-200">{{ 'Rp' . number_format($product->price, 0,
-                            ',', '.') }}</td>
-                        <td class="py-2 px-4 border-b border-b-gray-200">{{ $product->stock }}</td>
-                        <td class="py-4 px-4 border-b border-b-gray-200">
-                            <ul class="flex items-center gap-x-2">
+                        <td class="py-3 px-5 border-b">{{ $product->name }}</td>
+                        <td class="py-3 px-5 border-b text-green-700 font-semibold">
+                            {{ 'Rp' . number_format($product->price, 0, ',', '.') }}
+                        </td>
+                        <td class="py-3 px-5 border-b">{{ $product->stock }}</td>
+                        @if (auth()->user()->role === 'Admin')
+                        <td class="py-3 px-5 border-b">
+                            <ul class="flex items-center space-x-3">
                                 <li>
-                                    <a href="/product/edit/{{ $product->id }}"
-                                        class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-md">Edit</a>
+                                    <a href="/product/edit/{{ $product->id }}" class="text-gray-500 hover:text-gray-700">
+                                        <i class="ri-edit-line text-lg"></i>
+                                    </a>
                                 </li>
                                 <li>
-                                    <a href=""
-                                        class="bg-green-500 hover:bg-green-700 bg text-white py-2 px-4 rounded-md">Update
-                                        Stok</a>
+                                    <button data-modal-target="crud-modal" data-modal-toggle="crud-modal"
+                                    class="text-gray-500 hover:text-gray-700">
+                                        <i class="ri-loop-left-line text-lg"></i>
+                                    </button>
                                 </li>
                                 <li>
                                     <form action="/product/{{ $product->id }}" method="POST"
                                         id="delete-form-{{ $product->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button"
-                                            class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded-md"
-                                            onclick="confirmDelete({{ $product->id }})">Hapus</button>
+                                        <button type="button" onclick="confirmDelete({{ $product->id }})"
+                                            class="text-gray-500 hover:text-gray-700">
+                                            <i class="ri-delete-bin-line text-lg"></i>
+                                        </button>
                                     </form>
                                 </li>
                             </ul>
                         </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
+    
+
+@foreach ($products as $product)
+<div id="crud-modal" tabindex="-1" aria-hidden="true"
+    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow-sm">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    Update Stok Produk
+                </h3>
+                <button type="button"
+                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                    data-modal-toggle="crud-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form class="p-4 md:p-5">
+                <div class="grid gap-4 mb-4 grid-cols-2">
+                    <div class="col-span-2">
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Nama Produk</label>
+                        <input type="text" name="name" id="name"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            value="{{ old('name', $product->name) }}">
+                    </div>
+                    <div class="col-span-2">
+                        <label for="stock" class="block mb-2 text-sm font-medium text-gray-900">Stok</label>
+                        <input type="number" name="stock" id="stock"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            value="{{ old('stock', $product->stock) }}">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Update
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
+@endforeach
 
 <script>
     function confirmDelete(productID) {

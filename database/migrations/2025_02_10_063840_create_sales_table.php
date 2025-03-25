@@ -17,9 +17,9 @@ return new class extends Migration
             $table->integer('total_price');
             $table->integer('total_pay');
             $table->integer('total_return');
-            $table->integer('point');
-            $table->integer('total_point');
-            $table->unsignedBigInteger('customer_id');
+            $table->integer('point')->nullable();
+            $table->integer('total_point')->nullable();
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
 

@@ -64,7 +64,7 @@
                     @foreach ($sales as $sale)
                     <tr class="hover:bg-gray-50 transition">
                         <td class="py-3 px-5 border-b">{{ $loop->iteration }}</td>
-                        <td class="py-3 px-5 border-b">{{ $sale->customer_id ? '' : 'NON-MEMBER' }}
+                        <td class="py-3 px-5 border-b">{{ $sale->customer->name ?? 'NON-MEMBER' }}
                         </td>
                         <td class="py-3 px-5 border-b">{{ $sale->sale_date }}</td>
                         <td class="py-3 px-5 border-b">Rp{{ number_format($sale->total_price, 0, ',',

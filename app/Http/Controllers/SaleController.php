@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sale;
+use App\Models\Product;
 use App\Models\Customer;
 use App\Models\DetailSale;
-use App\Models\Sale;
 use Illuminate\Http\Request;
-use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class SaleController extends Controller
@@ -38,12 +39,32 @@ class SaleController extends Controller
         return view('pages.sale.post', compact('cart'));
     }
 
+    public function member(Request $request, $id)
+    {
+        $details = DetailSale::where('sale_id', $id)->get();
+        $sales = Sale::findOrFail($id);
+        $customers = $sales->customer_id ? Customer::find($sales->customer_id) : null;
+
+        return view('pages.sale.member', compact('sales', 'details', 'customers'));
+    }
+
     public function detail(Request $request, $id)
     {
         $details = DetailSale::where('sale_id', $id)->get();
         $sales = Sale::findOrFail($id);
 
-        return view('pages.sale.detail', compact('details', 'sales'));
+        $pointUsed = $sales->point;
+        $totalBeforeDiscount = $details->sum('subtotal');
+        $totalAfterDiscount = $sales->total_price;
+        $pointUsed = $totalBeforeDiscount - $totalAfterDiscount;
+
+        return view('pages.sale.detail', compact(
+            'details',
+            'sales',
+            'totalBeforeDiscount',
+            'totalAfterDiscount',
+            'pointUsed'
+        ));
     }
 
     /**
@@ -70,7 +91,46 @@ class SaleController extends Controller
             'total_point' => 'nullable|integer',
             'customer_id' => 'nullable|integer',
             'user_id' => 'required|integer',
+            'no_hp' => 'nullable'
         ]);
+
+        $customer_id = null;
+
+        if (!empty($request->no_hp)) {
+            $customer = Customer::where('no_hp', $request->no_hp)->first();
+
+            if (!$customer) {
+                $customer = Customer::create([
+                    'name' => 'customer' . $request->no_hp,
+                    'no_hp' => $request->no_hp,
+                    'point' => 0
+                ]);
+            }
+
+            $customer_id = $customer->id;
+        }
+
+        $sales['customer_id'] = $customer_id;
+
+        $is_member = $request->member_status === 'member';
+
+        // Hitung point jika member
+        if ($is_member && $customer_id) {
+            $point = floor($sales['total_price'] / 100);
+            $sales['point'] = $point;
+            $sales['total_point'] = $point;
+
+            // Tambahkan point ke customer
+            Customer::where('id', $customer_id)->update([
+                'point' => DB::raw("point + $point")
+            ]);
+        } else {
+            // Jika bukan member, pastikan point tetap 0
+            $sales['point'] = 0;
+            $sales['total_point'] = 0;
+        }
+
+        // dd($request->all());
 
         $sale = Sale::create($sales);
 
@@ -85,15 +145,49 @@ class SaleController extends Controller
             Product::where('id', $product['id'])->decrement('stock', $product['quantity']);
         }
 
-        
-        
-    //     Customer::where('no_hp',$request->no_hp)->first();
-    // if(!$customer){
-    //     Customer::cre
-    // }
+        if ($is_member) {
+            return redirect()->route('sale.member', ['id' => $sale->id]);
+        }
 
         return redirect()->route('sale.detail', ['id' => $sale->id]);
     }
+
+    public function saveMember(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        $sale = Sale::findOrFail($id);
+        $customer = Customer::findOrFail($sale->customer_id);
+
+        $usePoint = $request->has('use_point');
+        $point = $customer->point;
+        $total = $sale->total_price;
+
+        // Update nama customer
+        $customer->name = $request->name;
+
+        if ($usePoint) {
+            if ($point >= $total) {
+                // Semua biaya dibayar pakai point
+                $sale->total_price = 0;
+                $customer->point = $point - $total;
+            } else {
+                // Potong sebagian biaya sesuai point
+                $sale->total_price = $total - $point;
+                $customer->point = 0;
+            }
+        }
+
+        $customer->save();
+        $sale->save();
+
+        return redirect()->route('sale.detail', ['id' => $id])->with('success', 'Nama member & penggunaan poin berhasil disimpan.');
+    }
+
+
+
 
     public function showPost()
     {
@@ -102,6 +196,8 @@ class SaleController extends Controller
 
         return view('pages.sale.post', compact('cart'));
     }
+
+
 
     /**
      * Display the specified resource.

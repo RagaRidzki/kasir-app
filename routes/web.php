@@ -21,7 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('IsLogin')
 Route::middleware(['IsLogin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/product', [ProductController::class, 'index'])->name('product.index');
-    Route::get('/sale', [SaleController::class, 'index']);
+    Route::get('/sale', [SaleController::class, 'index'])->name('sale.index');
 
     Route::middleware(['IsAdmin'])->group(function () {
         Route::get('/product/create', [ProductController::class, 'create']);
@@ -41,8 +41,10 @@ Route::middleware(['IsLogin'])->group(function () {
     Route::middleware(['IsEmployee'])->group(function () {
         Route::get('/sale/create', [SaleController::class, 'create'])->name('sale.create');
         Route::get('/sale/create/post', [SaleController::class, 'post'])->name('sale.post');
+        Route::get('/sale/create/member/{id}', [SaleController::class, 'member'])->name('sale.member');
         Route::post('/sale/session', [SaleController::class, 'session'])->name('sale.session');
         Route::post('/sale/store', [SaleController::class, 'store'])->name('sale.store');
+        Route::post('/sale/member/{id}', [SaleController::class, 'saveMember'])->name('sale.member.save');
         Route::get('/sale/detail-print/{id}', [SaleController::class, 'detail'])->name('sale.detail');
         Route::get('/sale/edit/{id}', [SaleController::class, 'edit']);
         Route::put('/sale/{id}', [SaleController::class, 'update']);

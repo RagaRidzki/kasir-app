@@ -56,7 +56,7 @@
 
             </div>
             <div class="flex justify-end gap-x-2">
-                <x-button>
+                <x-button type="submit">
                     <i class="ri-add-line"></i> Tambah Product
                 </x-button>
                 <x-link-button href="/product">

@@ -57,8 +57,8 @@
                 <input type="hidden" name="total_price" id="total_price"
                     value="{{ array_sum(array_map(fn($p) => $p['price'] * $p['quantity'], $cart)) }}">
                 <input type="hidden" name="total_return" id="totalReturn" value="">
-                <input type="hidden" name="point" value="{{ $point ?? '' }}">
-                <input type="hidden" name="total_point" value="{{ $total_point ?? '' }}">
+                <input type="hidden" name="point" value="">
+                <input type="hidden" name="total_point" value="">
                 <input type="hidden" name="customer_id" value="{{ $customer_id ?? '' }}">
                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                 {{-- end: input data sale  --}}
@@ -85,7 +85,7 @@
                 <div class="flex flex-col space-y-2 mb-4" id="phoneField" style="display: none;">
                     <label class="text-sm text-gray-500">No Telepon <span class="text-red-500">(daftar/gunakan
                             member)</span></label>
-                    <input type="number" name="phone"
+                    <input type="number" name="no_hp"
                         class="w-full border border-gray-300 rounded-md p-2 focus:ring focus:outline-none focus:ring-gray-400">
                 </div>
                 <div class="flex flex-col space-y-2 mb-4">

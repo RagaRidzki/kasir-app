@@ -24,6 +24,11 @@
             <div>
                 <h1 class="text-xl font-semibold text-gray-800">Invoice - #{{ $details->first()->sale_id }}</h1>
                 <p class="text-gray-500">{{ $sales->created_at }}</p>
+                @if ($sales->customer)
+                <p class="text-gray-500 font-semibold">{{ $sales->customer->no_hp }}</p>
+                <p class="text-gray-500">MEMBER SEJAK: {{ $sales->customer->created_at->format('d M Y') }}</p>
+                <p class="text-gray-500">MEMBER POIN: {{ $sales->customer->point }}</p>
+                @endif
             </div>
             <div class="space-x-2">
                 <button class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Unduh</button>
@@ -56,7 +61,7 @@
             <div class="grid grid-cols-3 gap-6 text-gray-700">
                 <div>
                     <p class="font-semibold text-gray-600">POIN DIGUNAKAN</p>
-                    <p class="text-lg">{{ $sales->point ? '' : 0 }}</p>
+                    <p class="text-lg">{{ $pointUsed }}</p>
                 </div>
                 <div>
                     <p class="font-semibold text-gray-600">KASIR</p>
@@ -72,7 +77,12 @@
 
             <div class="bg-gray-900 text-white p-6 mt-6 rounded-md flex justify-between items-center shadow-lg">
                 <span class="text-lg font-semibold">TOTAL</span>
-                <span class="text-2xl font-bold">Rp{{ number_format($details->sum('subtotal'), 0, ',', '.') }}</span>
+                <div class="flex flex-col">
+                    {{-- Harga yang belum di diskon (contoh) --}}
+                    <span class="text-2xl font-bold line-through">Rp{{ number_format($totalBeforeDiscount, 0, ',', '.') }}</span>
+                    {{-- Harga yang sudah didiskon --}}
+                    <span class="text-2xl font-bold">Rp{{ number_format($totalAfterDiscount, 0, ',', '.') }}</span>
+                </div>
 
             </div>
     </div>

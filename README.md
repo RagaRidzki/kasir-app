@@ -523,6 +523,53 @@ class AuthController extends Controller
  
  -->
 
+ <!-- Dashboard Controller 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Sale;
+use App\Models\User;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $totalSale = Sale::count();
+        $totalProduct = Product::count();
+        $totalUser = User::count();
+
+        // Ambil data penjualan per hari
+        $sales = DB::table('sales')
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as total')
+            ->groupByRaw('DATE(created_at)')
+            ->orderBy('date')
+            ->get();
+
+
+        // Siapkan data untuk chart
+        $labels = $sales->pluck('date');
+        $dataChart = $sales->pluck('total');
+
+        return view('pages.dashboard.index', compact(
+            'totalSale',
+            'totalProduct',
+            'totalUser',
+            'labels',
+            'dataChart'
+        ));
+    }
+}
+
+
+-->
+ 
+
  <!-- public function collection()
     {
         return Sale::select('id', 'sale_date', 'total_price', 'total_pay', 'total_return', 'point', 'user_id', 'customer_id')->get();
@@ -543,7 +590,36 @@ class AuthController extends Controller
     } 
     
     -->
+<!-- 
 
+<script>
+        const labels = @json($labels);
+        const data = @json($dataChart);
+    
+        new Chart(document.getElementById('myChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Penjualan per Hari',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+-->
 <!-- 
 
 <?php

@@ -64,3 +64,492 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+<!--  ================================ SaleController  ================================ -->
+
+<!-- <?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Sale;
+use App\Models\Product;
+use App\Models\Customer;
+use App\Models\DetailSale;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+
+class SaleController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $sales = Sale::all();
+        $details = DetailSale::all();
+
+        return view('pages.sale.index', compact('sales', 'details'));
+    }
+
+    public function detail(Request $request, $id)
+    {
+        $details = DetailSale::where('sale_id', $id)->get();
+        $sales = Sale::findOrFail($id);
+
+        $totalBeforeDiscount = $details->sum('subtotal');
+
+        return view('pages.sale.detail', compact('details', 'sales', 'totalBeforeDiscount'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $products = Product::all();
+
+        return view('pages.sale.create', compact('products'));
+    }
+
+    public function post()
+    {
+        $cart = session('cart', []);
+
+        return view('pages.sale.post', compact('cart'));
+    }
+
+    public function member(Request $request, $id)
+    {
+        $details = DetailSale::where('sale_id', $id)->get();
+        $sales = Sale::findOrFail($id);
+        $customers = $sales->customer_id ? Customer::find($sales->customer_id) : null;
+
+        return view('pages.sale.member', compact('details', 'sales', 'customers'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function session(Request $request)
+    {
+        // dd($request->all()); 
+
+        session(['cart' => array_filter($request->products, fn($p) => $p['quantity'] > 0)]);
+
+        return redirect()->route('sale.post');
+    }
+
+    public function store(Request $request)
+    {
+        // dd($request->all()); 
+
+        $validated = $request->validate([
+            'sale_date' => 'required',
+            'total_price' => 'required',
+            'total_pay' => 'required',
+            // 'total_return' => 'required',
+            'point' => 'nullable',
+            'total_point' => 'nullable',
+            'customer_id' => 'nullable',
+            'user_id' => 'required',
+            'no_hp' => 'required'
+        ]);
+
+        $total_return = $request->input('total_pay') - $request->input('total_price');
+
+        $validated['total_return'] = $total_return;
+
+        $customer_id = null;
+
+        if (!empty($request->no_hp)) {
+            $customer = Customer::where('no_hp', $request->no_hp)->first();
+
+            if (!$customer) {
+                $customer = Customer::create([
+                    'name' => 'customer' . $request->no_hp,
+                    'no_hp' => $request->no_hp,
+                    'point' => 0
+                ]);
+            }
+
+            $customer_id = $customer->id;
+        }
+
+        $validated['customer_id'] = $customer_id;
+
+        $sales['customer_id'] = $customer_id;
+
+        $is_member = $request->member_status === 'member';
+
+        if($is_member && $customer_id) {
+            $point = floor($sales['total_price'] / 100);
+            $sales['point'] = $point;
+            $sales['total_point'] = $point;
+
+            Customer::where('id', $customer_id)->update([
+                'point' => DB::raw("point + $point")
+            ]);
+        } else {
+            $sales['point'] = 0;
+            $sales['total_point'] = 0;
+        }
+
+        // dd($total_return);
+
+        $sale = Sale::create($validated);
+
+        foreach ($request->products as $product) {
+            DetailSale::create([
+                'sale_id' => $sale->id,
+                'product_id' => $product['id'],
+                'quantity' => $product['quantity'],
+                'subtotal' => $product['price'] * $product['quantity']
+            ]);
+
+            Product::where('id', $product['id'])->decrement('stock', $product['quantity']);
+        }
+
+        if ($is_member) {
+            return redirect()->route('sale.member', $sale->id);
+        }
+
+        return redirect()->route('sale.detail', $sale->id);
+    }
+
+    public function saveMember(Request $request, $id) {
+        $request->validate([
+            'name' => 'required'
+        ]); 
+
+        $sale = Sale::findOrFail($id);
+        $customer = Customer::findOrFail($sale->customer_id);
+        $usePoint = $request->has('use_point');
+        $point = $customer->point;
+        $total = $sale->total_price;
+
+        $customer->name = $request->name;
+
+        if ($usePoint) {
+            if($point >= $total) {
+                $sale->total_price = 0;
+                $customer->point = $point - $total;
+            } else {
+                $sale->total_price = $total - $point;
+                $customer->point = 0;
+            }
+        }
+        
+
+        $customer->save();
+        $sale->save();
+
+        return redirect()->route('sale.detail', $sale->id);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Sale $sale)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Sale $sale)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Sale $sale)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Sale $sale)
+    {
+        //
+    }
+}
+ -->
+
+
+<!--  ================================ ProductController  ================================ -->
+
+<!-- <?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $products = Product::all();
+
+        return view('pages.product.index', compact('products'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('pages.product.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+            'stock' => 'required',
+            'image' => 'required|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('product_images', 'public');
+        }
+
+        Product::create($validated);
+
+        return redirect('/product')->with('success', 'Data produk berhasil ditambahkan');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Product $product)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Product $product, $id)
+    {
+        $products = Product::findOrFail($id);
+
+        return view('pages.product.edit', compact('products'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Product $product, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+            'stock' => 'nullable',
+            'image' => 'nullable|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $products = Product::findOrFail($id);
+
+        if ($request->hasFile('image')) {
+            if ($products->image) {
+                \Storage::disk('public')->delete($products->image);
+            }
+
+            $validated['image'] = $request->file('image')->store('product_images', 'public');
+        } else {
+            $validated['image'] = $products->image;
+        }
+
+        $products->update($validated);
+
+        return redirect('/product')->with('success', 'Data produk berhasil diupdate');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Product $product, $id)
+    {
+        $products = Product::findOrFail($id);
+
+        if($products) {
+            $products->delete();
+            return redirect('/product')->with('success', 'Data product berhasil dihapus');
+        } else {
+            return redirect('/product')->with('error', 'Data product tidak ditemukan');
+        }
+    }
+}
+ -->
+
+<!--  ================================ UserController  ================================ -->
+
+<!-- <?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class UserController extends Controller
+{
+    public function index() {
+        $users = User::all();
+
+        return view('pages.user.index', compact('users'));
+    }
+
+    public function create() {
+        return view('pages.user.create');
+    }
+
+    public function store(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'role' => 'required'
+        ]);
+
+        User::create($validated);
+
+        return redirect('/user')->with('success', 'Data user berhasil ditambahkan');
+    }
+
+    public function edit($id) 
+    {
+        $user = User::findOrFail($id);
+
+        return view('pages.user.edit', compact('user'));
+    }
+
+    public function update(Request $request, $id) {
+        $validated = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'password' => 'nullable',
+            'role' => 'required'
+        ]);
+
+        $user = User::findOrFail($id);
+
+        if(!$request->filled('password')){
+            $validated['password'] = $user->password;
+        } else {
+            $validated['password'] = bcrypt($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return redirect('/user')->with('success', 'Data user berhasil diupdate');
+    }
+
+    public function destroy($id) {
+        $user = User::findOrFail($id);
+
+        if($user) {
+            $user->delete();
+            return redirect('/user')->with('success', 'Data user berhasil dihapus');
+        } else {
+            return redirect('/user')->with('error', 'Data user tidak ditemukan');
+        }
+    }
+}
+ -->
+
+
+<!-- ================================ AuthController  ================================ -->
+
+<!-- <?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AuthController extends Controller
+{
+    public function index() {
+        return view('login');
+    }
+
+    public function store(Request $request) {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required']
+        ]);
+
+        if(Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors(['email' => 'Email atau password salah!'])->onlyInput('email');
+    }
+
+    public function logout(Request $request) {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
+    }
+}
+ -->
+
+<!-- <script>
+    document.querySelectorAll('.btn-plus').forEach(button => {
+        button.addEventListener('click', function() {
+            let productId = this.getAttribute('data-id');
+            let quantityElement = document.getElementById('quantity-' + productId);
+            let inputElement = document.getElementById('input-quantity-' + productId);
+            let price = parseInt(document.querySelector(`input[name="products[${productId}][price]"]`).value);
+            let stock = parseInt(document.querySelector(`p[data-stock="${productId}"]`).textContent.replace(/\D/g, ''));
+            let subtotalElement = document.getElementById('subtotal-' + productId);
+
+            let quantity = parseInt(quantityElement.textContent);
+
+            if (quantity < stock) {
+                quantity += 1;
+                quantityElement.textContent = quantity;
+                inputElement.value = quantity;
+                subtotalElement.textContent = 'Rp' + (quantity * price).toLocaleString('id-ID');
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-minus').forEach(button => {
+        button.addEventListener('click', function() {
+            let productId = this.getAttribute('data-id');
+            let quantityElement = document.getElementById('quantity-' + productId);
+            let inputElement = document.getElementById('input-quantity-' + productId);
+            let price = parseInt(document.querySelector(`input[name="products[${productId}][price]"]`).value);
+            let subtotalElement = document.getElementById('subtotal-' + productId);
+
+            let quantity = Math.max(0, parseInt(quantityElement.textContent) - 1);
+            quantityElement.textContent = quantity;
+            inputElement.value = quantity;
+            subtotalElement.textContent = 'Rp' + (quantity * price).toLocaleString('id-ID');
+        });
+    });
+</script> -->
+
+<!-- <input type="hidden" name="products[{{ $product->id }}][id]" value="{{ $product->id }}"> -->

@@ -298,7 +298,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $query = Product::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $products = $query->get();
 
         return view('pages.product.index', compact('products'));
     }
